@@ -171,13 +171,14 @@ void consommation(){
 // Driver program to test above functions./
 int main()
 {
+    int capacity = 1000;
     queue = createQueue(1000);
     
 
     pthread_t thread1, thread2;
 
 
-    if (sem_init(&sprod, 0, 1) == -1) {
+    if (sem_init(&sprod, 0, capacity) == -1) {
         perror("Could not initialize mylock semaphore sprod");
         exit(2);
     }
