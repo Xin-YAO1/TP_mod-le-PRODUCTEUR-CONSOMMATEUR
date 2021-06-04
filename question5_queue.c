@@ -18,6 +18,8 @@ char buff[MESSAGE_SIZE];
 
 sem_t sprod, scon;
 
+struct Queue* queue;
+
 
 
 // A structure to represent a queue
@@ -25,7 +27,7 @@ struct Queue
 {
     int front, rear, size;
     unsigned capacity;
-    char* array;
+    char** array;
 };
 
 // function to create a queue of given capacity.
@@ -34,9 +36,10 @@ struct Queue* createQueue(unsigned capacity)
 {
     struct Queue* queue = (struct Queue*) malloc(sizeof(struct Queue));
     queue->capacity = capacity;
-    queue->front = queue->size = 0;
+    queue->front = 0;
+    queue->size = 0;
     queue->rear = capacity - 1;  // This is important, see the enqueue
-    queue->array = (char*) malloc(queue->capacity * sizeof(char));
+    queue->array = (char**) malloc(queue->capacity * sizeof(char*));
     return queue;
 }
 
@@ -55,9 +58,12 @@ void enqueue(struct Queue* queue, char* item)
     if (isFull(queue))
         return;
     queue->rear = (queue->rear + 1)%queue->capacity;
-    queue->array[queue->rear] = item;
+
+    queue->array[queue->rear] = (char*) malloc(strlen(item) * sizeof(char));
+    strcpy(queue->array[queue->rear],item);
+
     queue->size = queue->size + 1;
-    printf("%s enqueued to queue\n", item);
+    printf("enqueued at [%d]: %s \n", queue->rear,item);
 }
 
 // Function to remove an item from queue.
@@ -65,27 +71,33 @@ void enqueue(struct Queue* queue, char* item)
 char* dequeue(struct Queue* queue)
 {
     if (isEmpty(queue))
-        return NULL;
-    char* item = queue->array[queue->front];
+        return "";
+    char* current = queue->array[queue->front];
+    char* item = (char*) malloc(strlen(current) * sizeof(char));
+    strcpy(item,current);
+    free(current);
+    printf("dequeue [%d]: %s \n", queue->front, item);
+
     queue->front = (queue->front + 1)%queue->capacity;
     queue->size = queue->size - 1;
     return item;
 }
 
+// I think we do not need these 2 functions
 // Function to get front of queue
-char front(struct Queue* queue)
+int front(struct Queue* queue)
 {
     if (isEmpty(queue))
-        return NULL;
-    return queue->array[queue->front];
+        return -1;
+    return queue->front;
 }
 
 // Function to get rear of queue
-char rear(struct Queue* queue)
+int rear(struct Queue* queue)
 {
     if (isEmpty(queue))
-        return NULL;
-    return queue->array[queue->rear];
+        return -1;
+    return queue->rear;
 }
 
 
@@ -118,14 +130,11 @@ void consommer(char *message){
 
 /*deposer() est pour deposer les message dans une liste de char*/
 void deposer(char* message){
-    struct Queue* queue = createQueue(1000);
     enqueue(queue,message);
 }
 
 char* retirer(){
-    struct Queue* queue = createQueue(1000);
-    char *mess =  rear(queue);
-    dequeue(queue);
+    char *mess =  dequeue(queue);
     return mess;
 }
 
@@ -162,7 +171,7 @@ void consommation(){
 // Driver program to test above functions./
 int main()
 {
-    struct Queue* queue = createQueue(1000);
+    queue = createQueue(1000);
     
 
     pthread_t thread1, thread2;
@@ -197,4 +206,5 @@ int main()
 
     return 0;
 }
+
 
