@@ -157,7 +157,7 @@ void consommation(){
     sem_post(&sprod);
     consommer(r);
     free(r);
-    sleep(1);
+    sleep(3);
     }
 }
 
@@ -206,5 +206,3 @@ int main()
 
     return 0;
 }
-
-
