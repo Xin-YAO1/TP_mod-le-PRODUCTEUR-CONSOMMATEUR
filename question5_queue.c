@@ -11,9 +11,7 @@
 
 /* Global variables */
 int k = 0;
-int id = 0;
-int ir = 0;
-char* T[N];
+
 char buff[MESSAGE_SIZE];
 
 sem_t sprod, scon;
